@@ -180,6 +180,7 @@
 .tale-backdrop { width: 100%; height: 100%; object-fit: cover; }
 .tale-character { position: absolute; bottom: 3%; width: auto; max-width: 42%; object-fit: contain; }
 .tale-choice { white-space: normal; height: auto; min-height: 64px; justify-content: flex-start; text-align: left; line-height: 1.7; }
+.tale-choice:hover, .tale-choice:active { transform: none; }
 .tale-cover { position: relative; min-height: 430px; overflow: hidden; }
 .tale-cover > .tale-stage { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; border: 0; }
 .tale-cover .tale-character { height: 54% !important; left: 74% !important; }
