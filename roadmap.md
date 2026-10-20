@@ -1,7 +1,8 @@
 # หมาป่าหลงนิทาน — Mock scope
-- [ ] Inspect supplied story and assets; report missing source document.
-- [ ] Remove AI game calls and implement authoritative sessions and four Mock APIs.
-- [ ] Replace game screen with named wolf, ten story questions, supplied images and endings.
-- [ ] Add development-only live API Docs/Test.
-- [ ] Test sequencing, duplicate protection, session isolation, restart, images and no AI calls.
-- [ ] Document changed files, boundaries and future Botnoi requirements; do not publish.
+- [x] Inspect existing assets (15/15) and report missing source document.
+- [ ] Verify story/reward alignment with มินิเกมเว็บAI.txt — blocked: document not available; needs user upload.
+- [x] Remove AI game calls and implement authoritative sessions and four Mock APIs.
+- [x] Replace game screen with named wolf, ten existing story questions, existing images and endings.
+- [x] Add development-only live API Docs/Test.
+- [x] Test sequencing, duplicate protection, session isolation, restart, images and no AI calls.
+- [x] Document changed files, boundaries and future Botnoi requirements; do not publish.

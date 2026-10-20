@@ -22,8 +22,4 @@ export class MockGameProvider implements GameProvider {
 
 export const gameProvider: GameProvider = new MockGameProvider();
 
-export function cleanWolfName(raw: string): string | null {
-  const n = raw.trim().replace(/\s+/g, " ");
-  const len = Array.from(n).length;
-  return len >= 1 && len <= 24 ? n : null;
-}
+export { cleanWolfName } from './validation';

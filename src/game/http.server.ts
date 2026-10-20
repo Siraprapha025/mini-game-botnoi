@@ -3,7 +3,7 @@ import { GameError } from './contract';
 import { GameService, awaitingName } from './service';
 import { repository } from './repository.server';
 import { getGameProvider } from '@/lib/game-ai.functions';
-import { cleanWolfName } from './provider';
+import { cleanWolfName } from './validation';
 
 const idSchema = z.string().uuid();
 const startSchema = z.object({ wolfName: z.string().max(100).transform(cleanWolfName).refine(n => n !== null, 'ชื่อหมาป่าต้องมี 1–24 ตัวอักษร') }).strict();

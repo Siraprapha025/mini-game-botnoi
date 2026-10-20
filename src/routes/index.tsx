@@ -4,7 +4,7 @@ import { ArrowRight, BookOpen, RotateCcw, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GameScene } from '@/components/game-scene';
 import { APPLES } from '@/game/assets';
-import { cleanWolfName } from '@/game/provider';
+import { cleanWolfName } from '@/game/validation';
 import { MOCK_LABEL, type GameResponse } from '@/game/contract';
 import { gameRequest } from '@/game/client';
 
