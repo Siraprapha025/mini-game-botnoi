@@ -78,8 +78,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "คุณคือใคร? มินิเกม AI" },
-      { name: "description", content: "มินิเกมทายบุคลิกภาพกับ AI" },
+      { title: "หมาป่าหลงนิทาน" },
+      { name: "description", content: "เรื่องราวของหมาป่าธรรมดาในนิทานหนูน้อยหมวกแดง — โหมดทดสอบ Mock" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },

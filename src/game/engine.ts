@@ -128,7 +128,7 @@ export function buildEnding(session: GameSession): EndingResult {
   const id = evaluateEnding(session.state);
   const t = ENDING_TEXT[id];
   const picked = session.history.filter((h) => h.memory && t.tags.includes(tagOf(h.choiceId, session.state)));
-  const moments = (picked.length ? picked : session.history.filter((h) => h.memory)).slice(-2).map((h) => h.memory!);
+  const moments = (picked.length ? picked : session.history.filter((h) => h.memory)).slice(-2).flatMap((h) => h.memory ? [h.memory] : []);
   const momentText = moments.length ? `ตอนที่${moments.join(" และตอนที่")} ` : "";
   return {
     id,

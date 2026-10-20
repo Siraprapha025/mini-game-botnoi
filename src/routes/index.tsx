@@ -1,175 +1,119 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
-import { createImage, createQuestions, createResult, type GameResult, type Question } from "@/lib/game-ai.functions";
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, BookOpen, RotateCcw, Terminal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GameScene } from '@/components/game-scene';
+import { APPLES } from '@/game/assets';
+import { cleanWolfName } from '@/game/validation';
+import { MOCK_LABEL, type GameResponse } from '@/game/contract';
+import { gameRequest } from '@/game/client';
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "คุณคือใคร? มินิเกมทายบุคลิกกับ AI" },
-      { name: "description", content: "ตอบ 10 สถานการณ์สุดแปลก แล้วให้ AI บอกว่าคุณคือใคร" },
-      { property: "og:title", content: "คุณคือใคร? มินิเกมทายบุคลิกกับ AI" },
-      { property: "og:description", content: "ตอบ 10 สถานการณ์สุดแปลก แล้วให้ AI บอกว่าคุณคือใคร" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
-  component: Game,
+export const Route = createFileRoute('/')({
+  head: () => ({ meta: [
+    { title: 'หมาป่าหลงนิทาน — มินิเกมนิทาน 10 ทางเลือก' },
+    { name: 'description', content: 'เป็นหมาป่าธรรมดาที่หลงเข้าไปในนิทานหนูน้อยหมวกแดง เลือกทางของคุณและพบแอปเปิ้ลประจำฉากจบ ในโหมดทดสอบ Mock' },
+    { property: 'og:title', content: 'หมาป่าหลงนิทาน' },
+    { property: 'og:description', content: 'สิบทางเลือกของหมาป่าธรรมดาในนิทานหนูน้อยหมวกแดง — ยังไม่เชื่อม Botnoi Agent' },
+    { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary_large_image' },
+  ] }), component: Game,
 });
-
-type Phase = "start" | "loading" | "play" | "thinking" | "result" | "error";
-
-function Doodle({ src, alt }: { src: string | null | undefined; alt: string }) {
-  return (
-    <div className="sketch-box aspect-square w-full overflow-hidden bg-card">
-      {src ? (
-        <img src={src} alt={alt} className="h-full w-full object-cover animate-in fade-in" />
-      ) : (
-        <div className="flex h-full items-center justify-center font-display text-xl text-muted-foreground animate-pulse">
-          กำลังวาดภาพ...
-        </div>
-      )}
-    </div>
-  );
-}
+const SESSION_KEY = 'wolf-mock-session-id';
 
 function Game() {
-  const getQuestions = useServerFn(createQuestions);
-  const getImage = useServerFn(createImage);
-  const getResult = useServerFn(createResult);
-
-  const [phase, setPhase] = useState<Phase>("start");
-  const [error, setError] = useState("");
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [images, setImages] = useState<Record<number, string | null>>({});
-  const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<{ scenario: string; choice: string }[]>([]);
-  const [result, setResult] = useState<GameResult | null>(null);
-  const [resultImg, setResultImg] = useState<string | null>(null);
-
-  const loadImage = (i: number, qs: Question[]) => {
-    if (!qs[i] || i in images) return;
-    setImages((m) => ({ ...m, [i]: null }));
-    getImage({ data: { prompt: qs[i].imagePrompt } }).then((url) =>
-      setImages((m) => ({ ...m, [i]: url ?? "" })),
-    );
-  };
-
+  const [game, setGame] = useState<GameResponse | null>(null);
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [restoring, setRestoring] = useState(true);
+  const [error, setError] = useState('');
+  const lock = useRef(false);
   useEffect(() => {
-    if (phase === "play") {
-      loadImage(idx, questions);
-      loadImage(idx + 1, questions);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, idx, questions]);
+    let active = true;
+    const id = sessionStorage.getItem(SESSION_KEY);
+    if (!id) { setRestoring(false); return; }
+    gameRequest('state', { sessionId: id }).then(s => { if (active) setGame(s); }).catch(() => {
+      sessionStorage.removeItem(SESSION_KEY);
+    }).finally(() => { if (active) setRestoring(false); });
+    return () => { active = false; };
+  }, []);
 
-  const start = async () => {
-    setPhase("loading");
-    setImages({});
-    setAnswers([]);
-    setIdx(0);
-    setResult(null);
-    setResultImg(null);
+  const run = async (operation: 'start' | 'answer' | 'restart', data: Record<string, string>) => {
+    if (lock.current) return;
+    lock.current = true; setBusy(true); setError('');
     try {
-      setQuestions(await getQuestions());
-      setPhase("play");
-    } catch (e) {
-      setError((e as Error).message);
-      setPhase("error");
-    }
+      const s = await gameRequest(operation, data);
+      setGame(s);
+      if (s.sessionId) sessionStorage.setItem(SESSION_KEY, s.sessionId);
+    } catch (e) { setError(e instanceof Error ? e.message : 'กรุณาลองใหม่'); }
+    finally { lock.current = false; setBusy(false); }
   };
-
-  const finish = async (all: typeof answers) => {
-    setPhase("thinking");
-    try {
-      const r = await getResult({ data: { answers: all } });
-      setResult(r);
-      setPhase("result");
-      setResultImg(await getImage({ data: { prompt: r.imagePrompt } }));
-    } catch (e) {
-      setError((e as Error).message);
-      setPhase("error");
-    }
+  const playing = game?.status === 'playing';
+  const ending = game?.ending;
+  const start = (event: React.FormEvent) => {
+    event.preventDefault(); const value = cleanWolfName(name);
+    if (!value) { setError('ตั้งชื่อหมาป่า 1–24 ตัวอักษรนะ'); return; }
+    void run('start', { wolfName: value });
   };
-
-  const choose = (choice: string) => {
-    const all = [...answers, { scenario: questions[idx]?.scenario ?? "", choice }];
-    setAnswers(all);
-    if (idx + 1 >= questions.length) finish(all);
-    else setIdx(idx + 1);
-  };
-
-  const q = questions[idx];
-
-  return (
-    <main className="paper min-h-screen px-5 py-8">
-      <div className="sketch-frame mx-auto flex min-h-[85vh] max-w-md flex-col gap-6 bg-background p-6">
-        {phase === "start" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-            <p className="font-display text-lg text-primary">มินิเกมทายบุคลิก</p>
-            <h1 className="font-display text-6xl leading-tight">คุณคือใคร?</h1>
-            <p className="text-muted-foreground">ตอบ 10 สถานการณ์สุดแปลก แล้วให้ AI บอกว่าคุณคืออะไร</p>
-            <button onClick={start} className="sketch-btn sketch-btn-primary px-10 py-4 font-display text-2xl">
-              เริ่มเล่น
-            </button>
+  return <main className="paper min-h-screen px-4 py-6 sm:py-10">
+    <div className="mx-auto max-w-4xl">
+      <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <Link to="/" className="flex items-center gap-2 font-display text-lg"><BookOpen size={22} /> หมาป่าหลงนิทาน</Link>
+        {import.meta.env.DEV && <Button asChild variant="outline" size="sm"><Link to="/api-docs"><Terminal /> API Docs</Link></Button>}
+      </header>
+      <p className="mb-5 flex items-center gap-2 text-sm font-medium text-muted-foreground"><span className="h-2 w-2 rounded-full bg-primary" />{MOCK_LABEL}</p>
+      {!import.meta.env.DEV && <p role="alert" className="mb-4 text-destructive">โหมด Mock เปิดเฉพาะ development</p>}
+      {restoring ? <p className="py-20 text-center font-display text-xl">กำลังอ่านรอบเกม…</p> : !game || game.status === 'awaiting_name' ? <>
+        <section className="tale-cover border-3 border-foreground bg-secondary">
+          <GameScene location="apple-tree" characters={[{ id: 'player', x: 74, height: 54 }]} />
+          <div className="tale-cover-copy">
+            <p className="mb-3 font-display text-sm text-primary">นิทานหนูน้อยหมวกแดง · บทใหม่ของคุณ</p>
+            <h1 className="font-display text-4xl leading-snug sm:text-5xl">หมาป่า<br />หลงนิทาน</h1>
+            <p className="mt-4 leading-relaxed">วันนี้คุณเป็นหมาป่าธรรมดาอีกตัว<br />ไม่ใช่หมาป่าตัวร้ายในนิทาน</p>
+            <form onSubmit={start} className="mt-5 space-y-3">
+              <label htmlFor="wolf-name" className="block text-sm font-medium">หมาป่าของคุณชื่ออะไร?</label>
+              <input id="wolf-name" value={name} onChange={e => setName(e.target.value)} maxLength={100} placeholder="ชื่อหมาป่า" required disabled={busy} className="w-full rounded-md border-2 border-input bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-ring" />
+              <Button type="submit" disabled={busy || !import.meta.env.DEV} className="sketch-btn sketch-btn-primary h-auto w-full py-3 font-display text-lg">{busy ? 'กำลังเปิดนิทาน…' : 'เริ่มผจญภัย'}<ArrowRight /></Button>
+            </form>
           </div>
-        )}
-
-        {(phase === "loading" || phase === "thinking") && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-            <div className="h-14 w-14 animate-spin rounded-full border-4 border-foreground border-t-primary" />
-            <p className="font-display text-2xl">
-              {phase === "loading" ? "AI กำลังคิดสถานการณ์..." : "AI กำลังวิเคราะห์ตัวคุณ..."}
-            </p>
-          </div>
-        )}
-
-        {phase === "play" && q && (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="h-3 flex-1 overflow-hidden rounded-full border-2 border-foreground">
-                <div className="h-full bg-primary transition-all" style={{ width: `${(idx / questions.length) * 100}%` }} />
+        </section>
+        <div className="flex justify-between gap-3 py-5 text-sm text-muted-foreground"><span>10 คำถาม · 3 ทางเลือก</span><span>5 ฉากจบ · 5 แอปเปิ้ล</span></div>
+      </> : <>
+        <div className="mb-4 flex items-center justify-between gap-4">
+          <span className="font-display">หมาป่า {game.wolfName}</span>
+          <span className="text-sm text-muted-foreground">{playing ? `ข้อ ${game.questionNumber} / 10` : 'นิทานจบแล้ว · 10 / 10'}</span>
+        </div>
+        <progress className="tale-progress mb-4" max={10} value={playing ? game.questionNumber - 1 : 10} aria-label="คำถามที่ตอบแล้ว" />
+        <section className="overflow-hidden rounded-md border-3 border-foreground bg-background">
+          <GameScene location={game.locationId} characters={game.characters} />
+          <div className="p-5 sm:p-8">
+            <p className="mb-2 text-sm text-primary">{playing ? `บทที่ ${game.questionNumber}` : `ฉากจบ ${ending?.endingId}`}</p>
+            <h1 className="font-display text-2xl leading-snug sm:text-3xl">{game.title}</h1>
+            <div className="mt-4 space-y-3 leading-loose">{game.narrative.map((p, i) => <p key={i}>{p}</p>)}</div>
+            {playing && <>
+              <h2 className="mt-6 font-display text-xl">{game.question}</h2>
+              <div className="mt-4 grid gap-3">{game.choices.map(c => <Button key={c.choiceId} variant="outline" disabled={busy} onClick={() => {
+                if (game.sessionId && game.questionId) void run('answer', { sessionId: game.sessionId, questionId: game.questionId, choiceId: c.choiceId });
+              }} className="tale-choice sketch-btn px-4 py-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary font-display">{c.letter}</span><span>{c.label}</span></Button>)}</div>
+            </>}
+            {ending && <div className="mt-6 border-t-2 border-border pt-6">
+              <div className="flex flex-col items-center gap-4 sm:flex-row">
+                <img src={APPLES[ending.rewardId] ?? undefined} alt={ending.reward.name} className="h-40 w-40 shrink-0 object-contain" />
+                <div><p className="text-sm text-primary">แอปเปิ้ลของคุณ · {ending.rewardId}</p><h2 className="mt-1 font-display text-2xl">{ending.reward.name}</h2><p className="mt-2 text-sm text-muted-foreground">{ending.reward.color} · {ending.reward.pattern}</p><p className="mt-3 leading-relaxed">{ending.reward.power}</p></div>
               </div>
-              <span className="font-display">{idx + 1}/{questions.length}</span>
-            </div>
-            <Doodle src={images[idx]} alt={q.scenario} />
-            <h2 className="font-display text-2xl leading-snug">{q.scenario}</h2>
-            <div className="flex flex-col gap-3">
-              {q.options.map((o, i) => (
-                <button key={i} onClick={() => choose(o)} className="sketch-btn flex gap-3 px-4 py-3 text-left">
-                  <span className="font-display text-xl">{"ABC"[i]}.</span>
-                  <span className="pt-0.5">{o}</span>
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-
-        {phase === "result" && result && (
-          <div className="flex flex-col gap-5 animate-in fade-in">
-            <p className="text-center font-display text-lg text-primary">คุณคือ...</p>
-            <Doodle src={resultImg} alt={result.title} />
-            <h2 className="text-center font-display text-4xl">{result.title}</h2>
-            <div>
-              <p className="font-display text-xl">คำบรรยาย</p>
-              <p className="mt-2 leading-relaxed text-muted-foreground">{result.description}</p>
-            </div>
-            <button onClick={start} className="sketch-btn sketch-btn-primary py-3 font-display text-xl">
-              เล่นอีกครั้ง
-            </button>
+              <p className="mt-5 leading-loose">{ending.fortune}</p>
+            </div>}
           </div>
-        )}
-
-        {phase === "error" && (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-            <p className="font-display text-2xl">อุ๊ย!</p>
-            <p className="text-muted-foreground">{error}</p>
-            <button onClick={start} className="sketch-btn sketch-btn-primary px-8 py-3 font-display text-xl">
-              ลองใหม่
-            </button>
-          </div>
-        )}
-      </div>
-    </main>
-  );
+        </section>
+        <div className="mt-5 flex flex-wrap justify-between gap-3">
+          <Button variant="outline" disabled={busy} onClick={() => { if (game.sessionId) void run('restart', { sessionId: game.sessionId }); }}><RotateCcw />เล่นใหม่</Button>
+          {ending && <Button variant="ghost" disabled={busy} onClick={async () => {
+            if (game.sessionId) { await run('restart', { sessionId: game.sessionId }); sessionStorage.removeItem(SESSION_KEY); setGame(null); setName(''); }
+          }}>ตั้งชื่อหมาป่าตัวใหม่<ArrowRight /></Button>}
+        </div>
+      </>}
+      {error && <div role="alert" className="mt-4 rounded-md border border-destructive p-4 text-destructive">{error}{game?.sessionId && <Button variant="ghost" onClick={async () => {
+        try { setGame(await gameRequest('state', { sessionId: game.sessionId ?? '' })); setError(''); } catch { setError('อ่านรอบเกมไม่ได้ กรุณาเริ่มใหม่'); }
+      }}>อ่านสถานะล่าสุด</Button>}</div>}
+      <footer className="mt-6 border-t border-border/20 py-4 text-center text-xs text-muted-foreground">หมาป่าหลงนิทาน · Mock สำหรับทดสอบเท่านั้น</footer>
+    </div>
+  </main>;
 }
