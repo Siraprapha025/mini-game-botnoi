@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiDocsRouteImport } from './routes/api-docs'
 import { Route as ApiGameAnswerRouteImport } from './routes/api/game/answer'
 import { Route as ApiGameRestartRouteImport } from './routes/api/game/restart'
 import { Route as ApiGameStartRouteImport } from './routes/api/game/start'
@@ -18,6 +19,11 @@ import { Route as ApiGameStateRouteImport } from './routes/api/game/state'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDocsRoute = ApiDocsRouteImport.update({
+  id: '/api-docs',
+  path: '/api-docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGameAnswerRoute = ApiGameAnswerRouteImport.update({
@@ -43,6 +49,7 @@ const ApiGameStateRoute = ApiGameStateRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
   '/api/game/answer': typeof ApiGameAnswerRoute
   '/api/game/restart': typeof ApiGameRestartRoute
   '/api/game/start': typeof ApiGameStartRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
   '/api/game/answer': typeof ApiGameAnswerRoute
   '/api/game/restart': typeof ApiGameRestartRoute
   '/api/game/start': typeof ApiGameStartRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api-docs': typeof ApiDocsRoute
   '/api/game/answer': typeof ApiGameAnswerRoute
   '/api/game/restart': typeof ApiGameRestartRoute
   '/api/game/start': typeof ApiGameStartRoute
@@ -67,6 +76,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/api-docs'
     | '/api/game/answer'
     | '/api/game/restart'
     | '/api/game/start'
@@ -74,6 +84,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/api-docs'
     | '/api/game/answer'
     | '/api/game/restart'
     | '/api/game/start'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/api-docs'
     | '/api/game/answer'
     | '/api/game/restart'
     | '/api/game/start'
@@ -89,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiDocsRoute: typeof ApiDocsRoute
   ApiGameAnswerRoute: typeof ApiGameAnswerRoute
   ApiGameRestartRoute: typeof ApiGameRestartRoute
   ApiGameStartRoute: typeof ApiGameStartRoute
@@ -102,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-docs': {
+      id: '/api-docs'
+      path: '/api-docs'
+      fullPath: '/api-docs'
+      preLoaderRoute: typeof ApiDocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/game/answer': {
@@ -137,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiDocsRoute: ApiDocsRoute,
   ApiGameAnswerRoute: ApiGameAnswerRoute,
   ApiGameRestartRoute: ApiGameRestartRoute,
   ApiGameStartRoute: ApiGameStartRoute,
