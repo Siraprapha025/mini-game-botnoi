@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- All AI calls for the game live in src/lib/game-ai.functions.ts — single swap point for the future Botnoi Agent integration.
