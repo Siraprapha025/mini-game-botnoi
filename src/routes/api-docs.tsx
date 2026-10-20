@@ -44,8 +44,7 @@ function ApiDocs() {
       if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('กรุณาใส่ JSON object');
       const query = endpoint.method === 'GET' && body.sessionId ? `?sessionId=${encodeURIComponent(body.sessionId)}` : '';
       const r = await fetch(`/api/game/${endpoint.operation}${query}`, { method: endpoint.method, credentials: 'same-origin',
-        headers: endpoint.method === 'POST' ? { 'Content-Type': 'application/json' } : undefined,
-        body: endpoint.method === 'POST' ? JSON.stringify(body) : undefined });
+        ...(endpoint.method === 'POST' ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) });
       const result = await r.json();
       setStatus(r.status); setResponse(JSON.stringify(result, null, 2));
       if (!r.ok) setError(result.error?.message ?? 'ส่งคำขอไม่สำเร็จ');

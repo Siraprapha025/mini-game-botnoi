@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GameService, awaitingName, type SessionRepository, type StoredSession } from './service';
 import { MockGameProvider } from './provider';
-import type { GameSession } from './types';
 
 function fixture() {
   // Test-only repository. Production uses durable storage and revision filters.
