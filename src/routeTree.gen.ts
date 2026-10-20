@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiGameAnswerRouteImport } from './routes/api/game/answer'
+import { Route as ApiGameRestartRouteImport } from './routes/api/game/restart'
+import { Route as ApiGameStartRouteImport } from './routes/api/game/start'
+import { Route as ApiGameStateRouteImport } from './routes/api/game/state'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGameAnswerRoute = ApiGameAnswerRouteImport.update({
+  id: '/api/game/answer',
+  path: '/api/game/answer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGameRestartRoute = ApiGameRestartRouteImport.update({
+  id: '/api/game/restart',
+  path: '/api/game/restart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGameStartRoute = ApiGameStartRouteImport.update({
+  id: '/api/game/start',
+  path: '/api/game/start',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGameStateRoute = ApiGameStateRouteImport.update({
+  id: '/api/game/state',
+  path: '/api/game/state',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/game/answer': typeof ApiGameAnswerRoute
+  '/api/game/restart': typeof ApiGameRestartRoute
+  '/api/game/start': typeof ApiGameStartRoute
+  '/api/game/state': typeof ApiGameStateRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/game/answer': typeof ApiGameAnswerRoute
+  '/api/game/restart': typeof ApiGameRestartRoute
+  '/api/game/start': typeof ApiGameStartRoute
+  '/api/game/state': typeof ApiGameStateRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/game/answer': typeof ApiGameAnswerRoute
+  '/api/game/restart': typeof ApiGameRestartRoute
+  '/api/game/start': typeof ApiGameStartRoute
+  '/api/game/state': typeof ApiGameStateRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/api/game/answer'
+    | '/api/game/restart'
+    | '/api/game/start'
+    | '/api/game/state'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/api/game/answer'
+    | '/api/game/restart'
+    | '/api/game/start'
+    | '/api/game/state'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/game/answer'
+    | '/api/game/restart'
+    | '/api/game/start'
+    | '/api/game/state'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiGameAnswerRoute: typeof ApiGameAnswerRoute
+  ApiGameRestartRoute: typeof ApiGameRestartRoute
+  ApiGameStartRoute: typeof ApiGameStartRoute
+  ApiGameStateRoute: typeof ApiGameStateRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +104,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/game/answer': {
+      id: '/api/game/answer'
+      path: '/api/game/answer'
+      fullPath: '/api/game/answer'
+      preLoaderRoute: typeof ApiGameAnswerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/game/restart': {
+      id: '/api/game/restart'
+      path: '/api/game/restart'
+      fullPath: '/api/game/restart'
+      preLoaderRoute: typeof ApiGameRestartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/game/start': {
+      id: '/api/game/start'
+      path: '/api/game/start'
+      fullPath: '/api/game/start'
+      preLoaderRoute: typeof ApiGameStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/game/state': {
+      id: '/api/game/state'
+      path: '/api/game/state'
+      fullPath: '/api/game/state'
+      preLoaderRoute: typeof ApiGameStateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiGameAnswerRoute: ApiGameAnswerRoute,
+  ApiGameRestartRoute: ApiGameRestartRoute,
+  ApiGameStartRoute: ApiGameStartRoute,
+  ApiGameStateRoute: ApiGameStateRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

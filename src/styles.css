@@ -174,3 +174,22 @@
   color: var(--primary-foreground);
   &:hover { background: var(--primary); }
 }
+
+/* Storybook presentation uses the existing sketchbook tokens and supplied art. */
+.tale-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-bottom: 3px solid var(--foreground); background: var(--secondary); }
+.tale-backdrop { width: 100%; height: 100%; object-fit: cover; }
+.tale-character { position: absolute; bottom: 3%; width: auto; max-width: 42%; object-fit: contain; }
+.tale-choice { white-space: normal; height: auto; min-height: 64px; justify-content: flex-start; text-align: left; line-height: 1.7; }
+.tale-cover { position: relative; min-height: 430px; overflow: hidden; }
+.tale-cover > .tale-stage { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; border: 0; }
+.tale-cover .tale-character { height: 54% !important; left: 74% !important; }
+.tale-cover-copy { position: relative; z-index: 1; max-width: 440px; margin: 30px; padding: 20px; background: color-mix(in oklab, var(--background) 94%, transparent); border: 2px solid var(--foreground); }
+.tale-progress { accent-color: var(--primary); height: 10px; width: 100%; }
+.api-json { background: var(--foreground); color: var(--background); border-radius: 6px; }
+@media (max-width: 640px) {
+  .tale-cover { min-height: 540px; }
+  .tale-cover-copy { margin: 20px; padding: 16px; max-width: none; }
+  .tale-cover .tale-character { bottom: 0; height: 37% !important; left: 65% !important; }
+  .tale-stage:not(.tale-cover .tale-stage) { aspect-ratio: 4 / 3; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
