@@ -14,7 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      wolf_mock_sessions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          owner_hash: string
+          revision: number
+          revoked: boolean
+          session: Json
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id: string
+          owner_hash: string
+          revision?: number
+          revoked?: boolean
+          session: Json
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          owner_hash?: string
+          revision?: number
+          revoked?: boolean
+          session?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
