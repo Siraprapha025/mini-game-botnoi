@@ -60,7 +60,6 @@ function Game() {
         {import.meta.env.DEV && <Button asChild variant="outline" size="sm"><Link to="/api-docs"><Terminal /> API Docs</Link></Button>}
       </header>
       <p className="mb-5 flex items-center gap-2 text-sm font-medium text-muted-foreground"><span className="h-2 w-2 rounded-full bg-primary" />{MOCK_LABEL}</p>
-      {!import.meta.env.DEV && <p role="alert" className="mb-4 text-destructive">โหมด Mock เปิดเฉพาะ development</p>}
       {restoring ? <p className="py-20 text-center font-display text-xl">กำลังอ่านรอบเกม…</p> : !game || game.status === 'awaiting_name' ? <>
         <section className="tale-cover border-3 border-foreground bg-secondary">
           <GameScene location="apple-tree" characters={[{ id: 'player', x: 74, height: 54 }]} />
@@ -71,7 +70,7 @@ function Game() {
             <form onSubmit={start} className="mt-5 space-y-3">
               <label htmlFor="wolf-name" className="block text-sm font-medium">หมาป่าของคุณชื่ออะไร?</label>
               <input id="wolf-name" value={name} onChange={e => setName(e.target.value)} maxLength={100} placeholder="ชื่อหมาป่า" required disabled={busy} className="w-full rounded-md border-2 border-input bg-background px-3 py-3 outline-none focus:ring-2 focus:ring-ring" />
-              <Button type="submit" disabled={busy || !import.meta.env.DEV} className="sketch-btn sketch-btn-primary h-auto w-full py-3 font-display text-lg">{busy ? 'กำลังเปิดนิทาน…' : 'เริ่มผจญภัย'}<ArrowRight /></Button>
+              <Button type="submit" disabled={busy} className="sketch-btn sketch-btn-primary h-auto w-full py-3 font-display text-lg">{busy ? 'กำลังเปิดนิทาน…' : 'เริ่มผจญภัย'}<ArrowRight /></Button>
             </form>
           </div>
         </section>
