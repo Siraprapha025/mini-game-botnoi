@@ -68,6 +68,7 @@ Existing imported files are present (15/15):
 - API Docs Send returns actual 201/200 API data, carries sessionId forward and shows invalid-JSON errors.
 - Desktop and narrow viewport checked; displayed scene/player/reward images loaded. No runtime errors or AI requests observed.
 - Production build (`vite build` + `vite preview`) verified: full ten-question playthrough, ending and restart work outside development; the /api-docs tester returns not found there. No production deployment was performed by the agent.
+- Latest focused check: the existing published URL completed name → ten answers → E3 ending with no page errors. Preview API Test completed real start (201) → ten answers (200) → finished with matching reward. The game structure and appearance were unchanged; only the tester's production-access wording and these usage examples were updated. All 21 existing tests passed. No publish action was performed.
 
 ## Next Botnoi step — not implemented
 Provide the existing Agent identifier and official API documentation: actual base URL/endpoint, method, authentication scheme, request/response examples (including errors), conversation/session ids, reset/end semantics, rate limits, timeout expectations and any supported structured-output format. Do not paste the secret key in chat or Git; it will be collected through server-side secrets when connection is explicitly requested.
