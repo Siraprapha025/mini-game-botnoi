@@ -7,6 +7,14 @@ Temporary deterministic story testing only. No Botnoi connection, Agent creation
 - Live tester: select **API Docs** or open `/api-docs` in development. The tester page stays development-only (notFound outside development); the four Mock game APIs it exercises are public because the published game needs them.
 - Start in the tester with `{"wolfName":"เทา"}` and Send. Answer auto-fills the sessionId, current questionId and first valid choice. GET state converts the JSON editor's sessionId into a query parameter. Repeated/old answers return HTTP 409.
 
+### ตัวอย่างใช้ API Test จนจบเกม
+1. เปิด `/api-docs` ในหน้า preview ของ Lovable เลือก **เริ่มเกม** ใส่ `{"wolfName":"เทา"}` แล้วกด **Send** — ได้ HTTP 201, `status: "playing"`, `questionNumber: 1`.
+2. เลือก **ส่งคำตอบ** — ช่อง JSON เติม `sessionId`, `questionId` และ `choiceId` จากผลจริงให้แล้ว เช่น `{"sessionId":"<ใช้ค่าจาก response>","questionId":"s1","choiceId":"s1-eat"}`. อย่าส่งข้อความ placeholder เป็น sessionId.
+3. เลือก `choiceId` จาก `choices` ของข้อปัจจุบัน แล้วกด **Send** — ได้ HTTP 200 และข้อถัดไป ช่อง JSON เปลี่ยนเป็นคำตอบสำหรับข้อใหม่ให้อัตโนมัติ.
+4. ทำซ้ำจนครบ 10 คำตอบ — response เปลี่ยนเป็น `status: "finished"`, `choices: []` และ `ending` มี `endingId` ตรงกับ `rewardId`.
+
+ปุ่ม Send เรียก `/api/game/start` และ `/api/game/answer` เดิมจริง ไม่ใช่ response ตัวอย่างตายตัว ต้องใช้เบราว์เซอร์เดิมตลอดรอบเพื่อส่งคุกกี้เจ้าของรอบ. บนเว็บที่เผยแพร่ ผู้เล่นใช้หน้าเกม `/` ได้ แต่ `/api-docs` ยังคงไม่เปิดสาธารณะ.
+
 ## Changed / added source
 - `src/routes/index.tsx`: named-wolf story screen, three choices, ten-question progression, results, restart. Only API responses drive play.
 - `src/components/game-scene.tsx`: displays existing backgrounds and separately identified player/villain sprites.

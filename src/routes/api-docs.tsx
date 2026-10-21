@@ -66,7 +66,7 @@ function ApiDocs() {
         </nav>
         <section className="min-w-0">
           <h2 className="font-mono text-lg font-bold">{endpoint.method} /api/game/{endpoint.operation}</h2><p className="mt-3 leading-relaxed text-muted-foreground">{endpoint.description}</p>
-          <p className="mt-3 text-sm text-muted-foreground">ใช้คุกกี้ HttpOnly ของเบราว์เซอร์เจ้าของรอบ · หมดอายุ 24 ชั่วโมง · ไม่เปิดให้เรียกใน production</p>
+          <p className="mt-3 text-sm text-muted-foreground">ใช้คุกกี้ HttpOnly ของเบราว์เซอร์เจ้าของรอบ · หมดอายุ 24 ชั่วโมง · API ใช้เล่นเกมบนเว็บที่เผยแพร่ได้ ส่วนหน้าทดสอบเปิดเฉพาะ development</p>
           <details className="my-5 border-y border-border/20 py-3"><summary className="cursor-pointer text-sm font-medium">ตัวอย่าง request / response และสัญญาข้อมูล</summary>
             <pre className="mt-3 overflow-x-auto rounded-md bg-muted p-4 text-xs">{JSON.stringify(endpoint.sample, null, 2)}</pre>
             <p className="my-3 text-sm">ตัวอย่างโครงสร้างเท่านั้น ไม่ใช่ผลจากปุ่ม Send:</p>
