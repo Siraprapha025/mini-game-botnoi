@@ -7,6 +7,14 @@ Temporary deterministic story testing only. No Botnoi connection, Agent creation
 - Live tester: select **API Docs** or open `/api-docs` in development. The tester page stays development-only (notFound outside development); the four Mock game APIs it exercises are public because the published game needs them.
 - Start in the tester with `{"wolfName":"เทา"}` and Send. Answer auto-fills the sessionId, current questionId and first valid choice. GET state converts the JSON editor's sessionId into a query parameter. Repeated/old answers return HTTP 409.
 
+### ตัวอย่างใช้ API Test จนจบเกม
+1. เปิด `/api-docs` ในหน้า preview ของ Lovable เลือก **เริ่มเกม** ใส่ `{"wolfName":"เทา"}` แล้วกด **Send** — ได้ HTTP 201, `status: "playing"`, `questionNumber: 1`.
+2. เลือก **ส่งคำตอบ** — ช่อง JSON เติม `sessionId`, `questionId` และ `choiceId` จากผลจริงให้แล้ว เช่น `{"sessionId":"<ใช้ค่าจาก response>","questionId":"s1","choiceId":"s1-eat"}`. อย่าส่งข้อความ placeholder เป็น sessionId.
+3. เลือก `choiceId` จาก `choices` ของข้อปัจจุบัน แล้วกด **Send** — ได้ HTTP 200 และข้อถัดไป ช่อง JSON เปลี่ยนเป็นคำตอบสำหรับข้อใหม่ให้อัตโนมัติ.
+4. ทำซ้ำจนครบ 10 คำตอบ — response เปลี่ยนเป็น `status: "finished"`, `choices: []` และ `ending` มี `endingId` ตรงกับ `rewardId`.
+
+ปุ่ม Send เรียก `/api/game/start` และ `/api/game/answer` เดิมจริง ไม่ใช่ response ตัวอย่างตายตัว ต้องใช้เบราว์เซอร์เดิมตลอดรอบเพื่อส่งคุกกี้เจ้าของรอบ. บนเว็บที่เผยแพร่ ผู้เล่นใช้หน้าเกม `/` ได้ แต่ `/api-docs` ยังคงไม่เปิดสาธารณะ.
+
 ## Changed / added source
 - `src/routes/index.tsx`: named-wolf story screen, three choices, ten-question progression, results, restart. Only API responses drive play.
 - `src/components/game-scene.tsx`: displays existing backgrounds and separately identified player/villain sprites.
@@ -60,6 +68,7 @@ Existing imported files are present (15/15):
 - API Docs Send returns actual 201/200 API data, carries sessionId forward and shows invalid-JSON errors.
 - Desktop and narrow viewport checked; displayed scene/player/reward images loaded. No runtime errors or AI requests observed.
 - Production build (`vite build` + `vite preview`) verified: full ten-question playthrough, ending and restart work outside development; the /api-docs tester returns not found there. No production deployment was performed by the agent.
+- Latest focused check: the existing published URL completed name → ten answers → E3 ending with no page errors. Preview API Test completed real start (201) → ten answers (200) → finished with matching reward. The game structure and appearance were unchanged; only the tester's production-access wording and these usage examples were updated. All 21 existing tests passed. No publish action was performed.
 
 ## Next Botnoi step — not implemented
 Provide the existing Agent identifier and official API documentation: actual base URL/endpoint, method, authentication scheme, request/response examples (including errors), conversation/session ids, reset/end semantics, rate limits, timeout expectations and any supported structured-output format. Do not paste the secret key in chat or Git; it will be collected through server-side secrets when connection is explicitly requested.

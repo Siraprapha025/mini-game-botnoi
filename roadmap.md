@@ -7,3 +7,4 @@
 - [x] Open Mock play on the published site (remove dev-only gate); verify production build end-to-end.
 - [x] Test sequencing, duplicate protection, session isolation, restart, images and no AI calls.
 - [x] Document changed files, boundaries and future Botnoi requirements; do not publish.
+- [x] Recheck start → answer → ending on the published URL and API Test in preview against the existing APIs; correct production access wording and add usage examples without changing game structure.
