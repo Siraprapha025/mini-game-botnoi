@@ -14,8 +14,6 @@ export type Operation = 'start' | 'answer' | 'state' | 'restart';
 export async function handleGame(request: Request, operation: Operation): Promise<Response> {
   const headers = new Headers({ 'Cache-Control': 'no-store', 'Content-Type': 'application/json' });
   try {
-    // This temporary Mock API is intentionally disabled in production builds.
-    if (!import.meta.env.DEV) throw new GameError(403, 'DEVELOPMENT_ONLY', 'Mock API เปิดเฉพาะ development');
     const origin = request.headers.get('origin');
     if ((origin && origin !== new URL(request.url).origin) || request.headers.get('sec-fetch-site') === 'cross-site')
       throw new GameError(403, 'ORIGIN_DENIED', 'ไม่อนุญาตคำขอจากเว็บอื่น');

@@ -1,17 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-vi.mock('./repository.server', () => ({ repository: {} }));
+vi.mock('./repository.server', () => ({ repository: { create: vi.fn(), read: vi.fn(), replace: vi.fn(), revoke: vi.fn() } }));
 import { handleGame } from './http.server';
 import { cleanWolfName } from './validation';
 
 afterEach(() => vi.unstubAllEnvs());
 describe('Mock access boundary', () => {
-  it('denies every Mock API operation outside development', async () => {
+  it('serves the Mock API outside development so published visitors can play', async () => {
     vi.stubEnv('DEV', false);
-    for (const operation of ['start', 'answer', 'state', 'restart'] as const) {
-      const r = await handleGame(new Request(`http://localhost/api/game/${operation}`), operation);
-      expect(r.status).toBe(403);
-      expect((await r.json()).error.code).toBe('DEVELOPMENT_ONLY');
-    }
+    const r = await handleGame(new Request('http://localhost/api/game/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ wolfName: 'เทา' }),
+    }), 'start');
+    expect(r.status).toBe(201);
+    expect((await r.json()).status).toBe('playing');
   });
   it('denies cross-origin requests even in development', async () => {
     vi.stubEnv('DEV', true);
